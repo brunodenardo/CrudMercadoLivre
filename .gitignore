@@ -1,0 +1,5 @@
+venv/
+Servicos/__pycache__
+Menus/__pycache__
+MongoDB/__pycache__
+MongoDB/Crud/__pycache__
