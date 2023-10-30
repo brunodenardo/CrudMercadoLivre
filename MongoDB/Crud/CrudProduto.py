@@ -81,6 +81,7 @@ class CrudProduto(CrudAbstrato):
                     return listaProduto[int(numero)]["_id"]
                 else:
                     print("Esse número não corresponde a nenhum produto.\n")
+            return "C"
         else:
             return "Não há produtos cadastrado"
 
@@ -115,7 +116,15 @@ class CrudProduto(CrudAbstrato):
                     self.colecao.update_one({"_id":id}, update)
                     self.updateProdutoCascata.update(id, atributo, update["$set"][atributo])
 
-
+    def inserirComentario(self, comentador, produto_id):
+        comentario = input("Digite seu comentário")
+        objetoComentario = {
+            "usuario_id":comentador["_id"],
+            "usuario_nome":comentador["usuario_nome"],
+            "comentario":comentario
+        }
+        self.openConection()
+        self.colecao.update_one({"_id":produto_id}, {"$push":{"produto_comentarios":objetoComentario}})
 
 
     #Delete

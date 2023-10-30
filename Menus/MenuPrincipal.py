@@ -1,10 +1,18 @@
 
+from Menus.MenuCompras import MenuCompras
+from Menus.MenuFavoritos import MenuFavoritos
+from Menus.MenuHistorico import MenuHistorico
+from Menus.MenuProdutos import MenuProdutos
 from Menus.MenuUsuario import MenuUsuario
 
 
 class MenuPrincipal:
 
     menuUsuario = MenuUsuario()
+    menuHistorico = MenuHistorico()
+    menuCompras = MenuCompras()
+    menuFavoritos = MenuFavoritos()
+    menuProduto = MenuProdutos()
 
 
     def menu(self):
@@ -20,10 +28,13 @@ class MenuPrincipal:
 
             if (key == '1'):
                 self.menuUsuario.menu()
-
             elif (key == '2'):
-                print("Menu do Vendedor")        
+                self.menuHistorico.menu()
             elif (key == '3'):
-                print("Menu do Produto")        
+                self.menuProduto.menu()
+            elif (key == '4'):
+                self.menuFavoritos.menu()
+            elif (key == '5'):
+                self.menuCompras.menu()      
 
         print("Tchau")
