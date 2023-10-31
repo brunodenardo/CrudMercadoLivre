@@ -1,19 +1,26 @@
-from MongoDB.Crud.CrudProduto import CrudProduto
-from MongoDB.Crud.CrudUsuario import CrudUsuario
+
 from Servicos.DeletaRelacionados import DeletaRelacionados
+from Servicos.EscolheColecao import EscolheColecao
 
 
 class DeletaUsuarioCascata:
-    crudUsuario = CrudUsuario()
-    crudProduto = CrudProduto()
+
     deletaRelacionados = DeletaRelacionados()
+    escolheColecao = EscolheColecao()
 
     def deletar(self, usuario_id):
-        self.crudUsuario.openConection()
-        self.crudUsuario.colecao.delete_one({"_id":usuario_id})
-        listaProdutos = list(self.crudProduto.colecao.find({"vendedor_id":usuario_id}))
+        colecaoUsuario = self.escolheColecao.escolher("Usuário")
+        colecaoProduto = self.escolheColecao.escolher("Produto")
+        colecaoHistorico = self.escolheColecao.escolher("Histórico")
+        colecaoFavoritos = self.escolheColecao.escolher("Favoritos")
+        colecaoCompras = self.escolheColecao.escolher("Compras")
+        colecaoCompras.delete_one({"usuario_id":usuario_id})
+        colecaoFavoritos.delete_one({"usuario_id":usuario_id})
+        colecaoHistorico.delete_one({"usuario_id":usuario_id})
+        colecaoUsuario.delete_one({"_id":usuario_id})
+        listaProdutos = list(colecaoProduto.find({"vendedor_id":usuario_id}))
         if listaProdutos != []:
-            self.crudProduto.colecao.delete_many({"vendedor_id":usuario_id})
+            colecaoProduto.delete_many({"vendedor_id":usuario_id})
             for documento in listaProdutos:
                 self.deletaRelacionados.deletar(
                     {"produto_relacionado.produto_id":documento["_id"]},

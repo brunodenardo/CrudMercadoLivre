@@ -2,11 +2,13 @@
 
 from pprint import pprint
 from MongoDB.Crud.CrudUsuario import CrudUsuario
+from Servicos.SelecionadorIds import SelecionadorIds
 
 
 class MenuUsuario:
 
     crudUsuario = CrudUsuario()
+    selecionadorIds = SelecionadorIds()
 
     def menu(self):
         sub = 0
@@ -22,22 +24,22 @@ class MenuUsuario:
                 print("Create usuario")
                 self.crudUsuario.Create()
             elif (sub == '2'):
-                resultado = self.crudUsuario.Find(self.crudUsuario.selecionaId("listar"))
-                print(resultado)
+                resultado = self.crudUsuario.Find(self.selecionadorIds.selecionar("Usuário", "listar"))
+                pprint(resultado)
             elif (sub == '3'):
                 print("Lista de todos os usuários:")
                 resultado = self.crudUsuario.FindAll()
                 pprint(resultado)
             elif (sub == '4'):
-                id = self.crudUsuario.selecionaId("alterar")
-                if id != "Não há ninguém cadastrado":
+                id = self.selecionadorIds.selecionar("Usuário", "alterar")
+                if id != "Não há Usuário cadastrados":
                     self.crudUsuario.Update(id)
                 else:
                     print(id)
             elif (sub == '5'):
                 print("delete usuario")
-                id = self.crudUsuario.selecionaId("deletar")
-                if id != "Não há ninguém cadastrado":
+                id = self.selecionadorIds.selecionar("Usuário", "deletar")
+                if id != "Não há Usuário cadastrados":
                     self.crudUsuario.Delete(id)
                 else:
                     print(id)

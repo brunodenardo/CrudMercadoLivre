@@ -1,9 +1,10 @@
-from MongoDB.Crud.CrudProduto import CrudProduto
+from Servicos.EscolheColecao import EscolheColecao
 
 
 class DeletaRelacionados:
-    crudProduto = CrudProduto()
+    
 
     def deletar(self, filtro, update):
-        self.crudProduto.openConection()
-        self.crudProduto.colecao.update_many(filtro, update)
+        escolheColecao = EscolheColecao()
+        colecaoProduto = escolheColecao.escolher("Produto")
+        colecaoProduto.update_many(filtro, update)

@@ -1,12 +1,14 @@
-import pprint
+
+from pprint import pprint
 from MongoDB.Crud.CrudProduto import CrudProduto
 from MongoDB.Crud.CrudUsuario import CrudUsuario
+from Servicos.SelecionadorIds import SelecionadorIds
 
 
 class MenuProdutos:
 
     crudProduto = CrudProduto()
-    crudUsuario = CrudUsuario()
+    selecionadorIds = SelecionadorIds()
 
     def menu(self):
         sub = 0
@@ -24,8 +26,8 @@ class MenuProdutos:
                 print("Create produto")
                 self.crudProduto.Create()
             elif (sub == '2'):
-                resultado = self.crudProduto.Find(self.crudProduto.selecionaId("listar"))
-                print(resultado)
+                resultado = self.crudProduto.Find(self.selecionadorIds.selecionar("Produto", "listar"))
+                pprint(resultado)
             elif (sub == '3'):
                 print("Lista de todos os produtos:")
                 resultado = self.crudProduto.FindAll()
@@ -40,28 +42,22 @@ class MenuProdutos:
                     print(id)
             elif (sub == '5'):
                 print("delete produto")
-                id = self.crudProduto.selecionaId("deletar")
+                id = self.selecionadorIds.selecionar("Produto", "deletar")
                 if id == "C":
                     print("Operação cancelada")
-                elif id != "Não há produtos cadastrado":
+                elif id != "Não há Produto cadastrados":
                     self.crudProduto.Delete(id)
                 else:
                     print(id)
             elif (sub == '6'):
                 print("Inserir um comentário")
-                comentador = self.crudUsuario.selecionaId("que comente")
-                if(comentador == "C"):
+                comentador = self.selecionadorIds.selecionarObjeto("Usuário", "que comente")
+                produto_id = self.selecionadorIds.selecionar("Produto", "que seja comentado")
+                if(produto_id == "C"):
                     print("Operação cancelada")
-                elif(comentador == "Não há ninguém cadastrado"):
-                    print(comentador)
+                elif(produto_id == "Não há Produto cadastrados"):
+                    print("Não há Produtos cadastrados")
                 else:
-                    comentador = self.crudUsuario.Find(comentador)
-                    produto_id = self.crudProduto.selecionaId("que seja comentado")
-                    if(produto_id == "C"):
-                        print("Operação cancelada")
-                    elif(produto_id == "Não há produtos cadastrado"):
-                        print(produto_id)
-                    else:
-                        self.crudProduto.inserirComentario(comentador, produto_id)
+                    self.crudProduto.inserirComentario(comentador, produto_id)
                 
             

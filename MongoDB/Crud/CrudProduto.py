@@ -1,9 +1,13 @@
 from pprint import pprint
 import time
 from MongoDB.Crud.CrudAbstrato import CrudAbstrato
+
 from Servicos.CriaProduto import CriaProduto
 from Servicos.DeletaRelacionados import DeletaRelacionados
 from Servicos.DeleteProdutoCascata import DeleteProdutoCascata
+from Servicos.ListaNumerados import ListaNumerados
+
+
 from Servicos.PerguntaUpdate import PerguntaUpdate
 from Servicos.UpdateAninhado import UpdateAninhado
 from Servicos.UpdateProdutoCascata import UpdateProdutoCascata
@@ -11,12 +15,13 @@ from Servicos.UpdateProdutoCascata import UpdateProdutoCascata
 
 class CrudProduto(CrudAbstrato):
 
+    criarProduto = CriaProduto()
     perguntaUpdate = PerguntaUpdate()
     updateAninhado = UpdateAninhado()
-    criarProduto = CriaProduto()
     deletaRelacionados = DeletaRelacionados()
     deleteProdutoCascata = DeleteProdutoCascata()
     updateProdutoCascata = UpdateProdutoCascata()
+    listaNumerados = ListaNumerados()
 
     def openConection(self):
         while True:
@@ -30,6 +35,7 @@ class CrudProduto(CrudAbstrato):
 
     #Create
     def Create(self):
+        self.openConection()
         produto = self.criarProduto.criar()
         if(type(produto) != str):
             self.openConection()
@@ -51,57 +57,10 @@ class CrudProduto(CrudAbstrato):
 
     def FindAll(self):
         self.openConection()
-        resultado = list(self.colecao.find())
-        listaResultado = []
-        if len(resultado) == 0:
-            return "Não há produtos cadastrados"
-        else:
-            contagem = 0
-            for documento in resultado:
-                objeto ={
-                    "numero":contagem,
-                    "_id":documento["_id"],
-                    "produto_nome":documento["produto_nome"],
-                    "produto_preco": documento["produto_preco"],
-                    "produto_oferta":documento["produto_oferta"]
-                }
-                contagem += 1
-                listaResultado.append(objeto)
-            return listaResultado
+        listaTodos = list(self.colecao.find())
+        listaResultado = self.listaNumerados.escolheListagem(listaTodos, "Produto")
+        return listaResultado
 
-    def selecionaId(self, acao):
-        self.openConection()
-        listaProduto = self.FindAll()
-        numero = ""
-        if type(listaProduto) != str:
-            while numero != "C":
-                pprint(listaProduto)
-                numero = input(f"Selecione o número do produto que você quer {acao} (C para cancelar): ")
-                if numero.isdigit() and int(numero) < len(listaProduto):
-                    return listaProduto[int(numero)]["_id"]
-                else:
-                    print("Esse número não corresponde a nenhum produto.\n")
-            return "C"
-        else:
-            return "Não há produtos cadastrado"
-
-    def selecionaProdutoResumido(self, acao):
-        self.openConection()
-        listaProduto = self.FindAll()
-        numero = ""
-        if type(listaProduto) != str:
-            while numero != "C":
-                pprint(listaProduto)
-                numero = input(f"Selecione o número do produto que você quer {acao} (C para cancelar): ")
-                if numero.isdigit() and int(numero) < len(listaProduto):
-                    produtoEscolhido = listaProduto[int(numero)]
-                    del produtoEscolhido["numero"]
-                    return listaProduto[int(numero)]
-                else:
-                    print("Esse número não corresponde a nenhum produto.\n")
-            return "C"
-        else:
-            return "Não há produtos cadastrado"
 
     #Update
     def Update(self, id):
@@ -129,6 +88,7 @@ class CrudProduto(CrudAbstrato):
 
     #Delete
     def Delete(self, id):
+        self.openConection()
         filtro = {"_id":id}
         self.colecao.delete_one(filtro)
         self.deleteProdutoCascata.deletar(id)

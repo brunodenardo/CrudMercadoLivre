@@ -2,24 +2,22 @@
 from MongoDB.Crud.CrudCompra import CrudCompra
 from MongoDB.Crud.CrudFavorito import CrudFavorito
 from MongoDB.Crud.CrudHistorico import CrudHistorico
-from MongoDB.Crud.CrudProduto import CrudProduto
+from Servicos.EscolheColecao import EscolheColecao
+
 
 
 class UpdateProdutoCascata:
 
-    crudProduto = CrudProduto()
-    crudFavorito = CrudFavorito()
-    crudHistorico = CrudHistorico()
-    crudCompra = CrudCompra()
+    escolherColecao = EscolheColecao()
 
     def update(self, id, atributo, alteracao):
 
-        self.crudProduto.openConection()
-        self.crudProduto.colecao.update_many({"produto_relacionado.produto_id": id}, {"$set":{"produto_relacionado":{atributo:alteracao}}})
-        self.crudCompra.openConection()
-        self.crudCompra.colecao.update_many({"usuario_compras.produto_id":id}, {"$set":{"usuario_compras":{atributo:alteracao}}})
-        self.crudFavorito.openConection()
-        self.crudFavorito.colecao.update_many({"usuario_favoritos.produto_id":id}, {"$set":{"usuario_favoritos":{atributo:alteracao}}})
-        self.crudHistorico.openConection()
-        self.crudHistorico.colecao.update_many({"historico_usuario.produto_id":id}, {"$set":{"historico_usuario":{atributo:alteracao}}})
+        colecaoProduto = self.escolherColecao.escolher("Produto")
+        colecaoProduto.update_many({"produto_relacionado.produto_id": id}, {"$set":{"produto_relacionado":{atributo:alteracao}}})
+        colecaoCompras = self.escolherColecao.escolher("Compras")
+        colecaoCompras.update_many({"usuario_compras.produto_id":id}, {"$set":{"usuario_compras":{atributo:alteracao}}})
+        colecaoFavoritos = self.escolherColecao.escolher("Favoritos")
+        colecaoFavoritos.update_many({"usuario_favoritos.produto_id":id}, {"$set":{"usuario_favoritos":{atributo:alteracao}}})
+        colecaoHistorico = self.escolherColecao.escolher("Histórico")
+        colecaoHistorico.update_many({"historico_usuario.produto_id":id}, {"$set":{"historico_usuario":{atributo:alteracao}}})
         

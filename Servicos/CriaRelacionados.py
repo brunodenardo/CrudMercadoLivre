@@ -1,18 +1,19 @@
 
-from MongoDB.Crud.CrudProduto import CrudProduto
+
+
+from Servicos.SelecionadorIds import SelecionadorIds
 
 
 class CriaRelacionados:
 
-    crudProduto = CrudProduto()
+    selecionadorIds = SelecionadorIds()
 
     def criar(self):
-        resposta = input("Deseja relacionar esse produto a outro: ")
+        resposta = input("Deseja relacionar esse produto a outro (sim ou nao): ")
         listaRelacionados = []
         if resposta == "sim":
-            while(resposta != "X"):
-                self.crudProduto.openConection()
-                produtoRelacionado = self.crudProduto.selecionaProdutoResumido("relacionar ao produto que está sendo criado")
+            while(resposta != "nao"):
+                produtoRelacionado = self.selecionadorIds.selecionarObjeto("Produto", "relacionar ao produto que está sendo criado")
                 if(produtoRelacionado == "Não há produtos cadastrado"):
                     return listaRelacionados
                 elif produtoRelacionado not in listaRelacionados:

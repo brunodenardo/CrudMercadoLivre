@@ -1,14 +1,13 @@
-import pprint
+
+from pprint import pprint
 from MongoDB.Crud.CrudFavorito import CrudFavorito
-from MongoDB.Crud.CrudProduto import CrudProduto
-from MongoDB.Crud.CrudUsuario import CrudUsuario
+from Servicos.SelecionadorIds import SelecionadorIds
 
 
 class MenuFavoritos:
 
     crudFavorito = CrudFavorito()
-    crudUsuario = CrudUsuario()
-    crudProduto = CrudProduto()
+    selecionadorIds = SelecionadorIds()
 
 
     def menu(self):
@@ -21,7 +20,7 @@ class MenuFavoritos:
             sub = input("Digite a opção desejada? (V para voltar) ")
             if (sub == '1'):
                 print("Listar os favoritos de um usuário\n")
-                usuario_id = self.crudUsuario.selecionaId("exibir os favoritos")
+                usuario_id = self.selecionadorIds.selecionar("Usuário", "exibir os favoritos")
                 resultado = self.crudFavorito.Find(usuario_id)
                 pprint(resultado)
             elif (sub == '2'):
@@ -29,17 +28,20 @@ class MenuFavoritos:
                 pprint(self.crudFavorito.FindAll())
             elif (sub == '3'):
                 print("Inserir um produto aos favoritos de um usuário\n")
-                usuario_id = self.crudUsuario.selecionaId("inserir um produto nos favoritos desse usuário")
+                usuario_id = self.selecionadorIds.selecionar("Usuário", "inserir um produto nos favoritos desse usuário")
                 if usuario_id == "C":
                     print("\nOperação cancelada\n")
                 elif usuario_id == "Não há ninguém cadastrado":
                     print(usuario_id)
                 else:
-                    produto = self.crudProduto.selecionaProdutoResumido("adicionar aos favoritos de um usuário")
+                    produto = self.selecionadorIds.selecionarObjeto("Produto", "adicionar aos favoritos de um usuário")
                     if produto == "C":
                         print("\nOperação cancelada\n")
                     elif produto == "Não há produtos cadastrado":
                         print(produto)
                     else:
+                        id = produto["_id"]
+                        del produto["_id"]
+                        produto["produto_id"]
                         self.crudFavorito.Update(usuario_id, produto)
                 

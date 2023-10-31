@@ -1,14 +1,11 @@
 import datetime
 import time
 from MongoDB.Crud.CrudAbstrato import CrudAbstrato
-from MongoDB.Crud.CrudProduto import CrudProduto
-from MongoDB.Crud.CrudUsuario import CrudUsuario
+
 
 
 class CrudHistorico(CrudAbstrato):
 
-    crudUsuario = CrudUsuario()
-    crudProduto = CrudProduto()
 
     def openConection(self):
         while True:
@@ -22,6 +19,7 @@ class CrudHistorico(CrudAbstrato):
     #Create
 
     def Create(self, usuario_id):
+        self.openConection()
         historico = {
             "usuario_id":usuario_id,
             "historico_usuario":[]
@@ -33,7 +31,7 @@ class CrudHistorico(CrudAbstrato):
 
     def Find(self, usuario_id):
         self.openConection()
-        resultado = self.colecao.find({"usuario_id":usuario_id})
+        resultado = list(self.colecao.find({"usuario_id":usuario_id}))
 
         if resultado == None:
             return "Não há ninguém cadastrado"
@@ -53,6 +51,7 @@ class CrudHistorico(CrudAbstrato):
     #Update
 
     def Update(self, id, produto):
+        self.openConection()
         produto["produto_data_visualizacao"] = datetime.datetime.now()
         self.colecao.update_one({"usuario_id":id}, {"$push":{"historico_usuario":produto}})
 

@@ -6,6 +6,7 @@ from MongoDB.Crud.CrudFavorito import CrudFavorito
 from MongoDB.Crud.CrudHistorico import CrudHistorico
 from Servicos.CriaUsuario import CriaUsuario
 from Servicos.DeletaUsuarioCascata import DeletaUsuarioCascata
+from Servicos.ListaNumerados import ListaNumerados
 
 from Servicos.PerguntaUpdate import PerguntaUpdate
 from Servicos.UpdateAninhado import UpdateAninhado
@@ -19,11 +20,13 @@ class CrudUsuario(CrudAbstrato):
     crudHistorico = CrudHistorico()
     crudCompra = CrudCompra()
     crudFavorito = CrudFavorito()
+    listaNumerados = ListaNumerados()
 
     def openConection(self):
         while True:
             try:
                 self.colecao = self.conexao.get_collection("Usuário")
+                self.colecaoProduto = self.conexao.get_collection("Produto")
                 break
             except:
                 print("nao foi")
@@ -56,36 +59,8 @@ class CrudUsuario(CrudAbstrato):
     def FindAll(self):
         self.openConection()
         resultado = list(self.colecao.find())
-        listaResultado = []
-        if len(resultado) == 0:
-            return "Não há ninguém cadastrado"
-        else:
-            contagem = 0
-            for documento in resultado:
-                objeto ={
-                    "numero":contagem,
-                    "_id":documento["_id"],
-                    "usuario_nome":documento["usuario_nome"]
-                }
-                contagem += 1
-                listaResultado.append(objeto)
-            return listaResultado
+        return resultado
         
-    def selecionaId(self, acao):
-        self.openConection()
-        listaUsuario = self.FindAll()
-        numero = ""
-        if type(listaUsuario) != str:
-            while numero != "C":
-                pprint(listaUsuario)
-                numero = input(f"Selecione o número do usuário que você quer {acao} (C para cancelar): ")
-                if numero.isdigit() and int(numero) < len(listaUsuario):
-                    return listaUsuario[int(numero)]["_id"]
-                else:
-                    print("Esse número não corresponde a nenhum usuário.\n")
-            return "C"
-        else:
-            return "Não há ninguém cadastrado"
             
         
 
@@ -98,7 +73,7 @@ class CrudUsuario(CrudAbstrato):
         if type(documento) != str:
             atributos = ['usuario_email', 'usuario_endereco', 'usuario_login', 'usuario_nome', 'usuario_pagamento', 'usuario_recebimento', 'usuario_senha', 'usuario_telefone']
             for atributo in atributos:
-                if atributo != 'usuario_endereco' and atributo != 'usuario_pagamento' and atributo != 'usuario_recebimento':
+                if atributo != 'usuario_endereco' and atributo != 'usuario_pagamento' and atributo != 'usuario_recebimento' and atributo != "usuario_nome":
                     update = self.perguntaUpdate.pergunta(atributo)
                     if update != 'nao':
                         self.colecao.update_one({"_id":id}, update)
@@ -108,12 +83,17 @@ class CrudUsuario(CrudAbstrato):
                     self.updateAninhado.update(documento, atributo, {"_id":id}, "Usuário")
                 elif atributo == 'usuario_pagamento':  
                     self.updateAninhado.update(documento, atributo, {"_id":id}, "Usuário")
+                elif atributo == 'usuario_nome':
+                    update = self.perguntaUpdate.pergunta(atributo)
+                    if update != 'nao':
+                        self.colecao.update_one({"_id":id}, update)
+                        print(f"ATRIBUTO:  {update['$set'][atributo]}")
+                        self.colecaoProduto.update_many({"produto_comentarios.usuario_id":id}, {"$set":{"produto_comentarios.$[elemento].usuario_nome":update["$set"][atributo]}},array_filters=[{"elemento.usuario_id": id}])
         else:
             print(documento)
 
 
-    def UpdateCascata(self, id, filtro, alteracao):
-        return None
+
 
     #Delete
 

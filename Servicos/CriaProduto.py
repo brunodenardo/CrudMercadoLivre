@@ -1,13 +1,14 @@
 
 
-from MongoDB.Crud.CrudUsuario import CrudUsuario
+
 from Servicos.CriaRelacionados import CriaRelacionados
+from Servicos.SelecionadorIds import SelecionadorIds
 
 
 class CriaProduto:
 
     criaRelacionado = CriaRelacionados()
-    crudUsuario = CrudUsuario()
+    selecionadorIds = SelecionadorIds()
 
     def criar(self):
         produto = {}
@@ -17,16 +18,20 @@ class CriaProduto:
                 valor = input(f"Digite o valor de {atributo}: ")
                 produto[atributo] = valor
             elif(atributo == "vendedor_id"):
-                self.crudUsuario.openConection()
-                id = self.crudUsuario.selecionaId("atrelar a esse produto como vendedor")
-                if(id != "Não há ninguém cadastrado"):
+                
+                id = self.selecionadorIds.selecionar("Usuário", "atrelar a esse produto como vendedor")
+                if(id != "Não há Usuário cadastrados"):
                     produto[atributo] = id
                 else:
                     return "Não é possível cadastrar um produto sem que haja um usuário cadastrado"
             elif(atributo == "produto_comentarios"):
                 produto[atributo] = []
             elif(atributo == "produto_relacionado"):
-                produto[atributo] = self.criaRelacionado.criar()
+                relacionados = self.criaRelacionado.criar()
+                if type(relacionados):
+                    print(relacionados)
+                else:
+                    produto[atributo] = relacionados
             elif(atributo == "produto_numero_vendas"):
                 produto[atributo] = 0
         return produto
